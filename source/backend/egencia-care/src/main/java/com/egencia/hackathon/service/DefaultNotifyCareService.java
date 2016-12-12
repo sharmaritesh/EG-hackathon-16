@@ -25,6 +25,6 @@ public class DefaultNotifyCareService implements NotifyCareService {
 
     @Override
     public List<NotifyCareModel> findApplicableTrips(final Alert alert) {
-        return  notifyCareServiceRepository.findAllByCityOrCountry(alert.getCity(), alert.getCountry());
+        return  notifyCareServiceRepository.findAllByCityAndCountry(alert.getCity(), alert.getCountry());
     }
 }

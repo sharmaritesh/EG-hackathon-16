@@ -9,6 +9,6 @@ public interface DeviceService {
     String registerDevice(String phoneNumber);
     DeviceRegistrationModel getDevice(String phoneNumber);
 
-    void notifyDevice(String phoneNumber, Alert alert);
+    boolean notifyDevice(String phoneNumber, Alert alert);
     List<Alert> getAlerts(String phoneNumber);
 }

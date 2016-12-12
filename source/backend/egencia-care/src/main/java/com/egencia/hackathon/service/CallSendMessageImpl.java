@@ -28,7 +28,8 @@ public class CallSendMessageImpl extends AbstractSendMessage {
         boolean status = false;
         try {
             Call call = Call.creator(new PhoneNumber(message.getNumber()), new PhoneNumber(TwillioConstants.FROM_PHONE_NUMBER),
-                    new URI("http://demo.twilio.com/docs/voice.xml")).create();
+                    new URI("https://demo.twilio.com/docs/voice.xml")).create();
+                    //new URI("https://github.com/sharmaritesh/EG-hackathon-16/blob/master/source/backend/egencia-care/src/main/resources/RecordedMessage.xml")).create();
             LOGGER.info(call.getSid());
             status = true;
         } catch (Exception e) {

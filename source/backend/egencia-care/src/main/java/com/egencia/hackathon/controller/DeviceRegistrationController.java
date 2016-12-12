@@ -33,12 +33,14 @@ public class DeviceRegistrationController {
     }
 
     @RequestMapping(value = "device/{phoneNumber}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Callable<ResponseEntity<String>> registerDevice(
+    public Callable<ResponseEntity<Map>> registerDevice(
             @NotNull @PathVariable("phoneNumber") String phoneNumber) {
 
         return () -> {
             final String fcmToken = deviceService.registerDevice(phoneNumber);
-            return new ResponseEntity<String>(fcmToken, HttpStatus.CREATED);
+            Map<String, String> fcmTokenPayload= new HashMap<>();
+            fcmTokenPayload.put("fcm_token", fcmToken);
+            return new ResponseEntity<Map>(fcmTokenPayload, HttpStatus.CREATED);
         };
     }
 

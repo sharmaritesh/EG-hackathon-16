@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -30,7 +31,7 @@ public class AlertController {
         this.alertHandler = alertHandler;
     }
 
-    @RequestMapping(value = "alert", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/alert", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Callable<ResponseEntity<Void>> handleAlert(
             @Valid @RequestBody final Alert alert) {
         return () -> {
@@ -39,23 +40,14 @@ public class AlertController {
         };
     }
 
-    @RequestMapping(value = "reply", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Callable<ResponseEntity<Void>> alertReply(
-            @Valid @RequestBody final Map<String, String> alertReplyParams) {
+    @RequestMapping(value = "/reply", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Callable<ResponseEntity<Map>> alertReply(
+            @RequestBody final AlertReply alertReply) {
         return () -> {
-            AlertReply alertReply = new AlertReply();
-            alertReply.setNumber(alertReplyParams.get("number"));
-            alertReply.setUserId(alertReplyParams.get("user_id"));
-            alertReply.setCity(alertReplyParams.get("city"));
-            alertReply.setCountry(alertReplyParams.get("country"));
-            if(alertReplyParams.get("latitude") != null)
-                alertReply.setLatitude(Float.parseFloat(alertReplyParams.get("latitude")));
-            if(alertReplyParams.get("longitude") != null)
-                alertReply.setLongitute(Float.parseFloat(alertReplyParams.get("longitude")));
-            alertReply.setStatus(Boolean.valueOf(alertReplyParams.get("status")));
-            alertReply.setMessage(alertReplyParams.get("message"));
             alertHandler.handleAlertReply(alertReply);
-            return new ResponseEntity<Void>(HttpStatus.CREATED);
+            Map<String, Boolean> map = new HashMap<>();
+            map.put("status", true);
+            return new ResponseEntity<Map>(map, HttpStatus.ACCEPTED);
         };
     }
 

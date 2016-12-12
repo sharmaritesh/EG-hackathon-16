@@ -9,5 +9,5 @@ import java.util.List;
 @Repository("notifycareRepository")
 public interface NotifyCareServiceRepository extends MongoRepository<NotifyCareModel, String> {
 
-    List<NotifyCareModel> findAllByCityOrCountry(String city, String country);
+    List<NotifyCareModel> findAllByCityAndCountry(String city, String country);
 }

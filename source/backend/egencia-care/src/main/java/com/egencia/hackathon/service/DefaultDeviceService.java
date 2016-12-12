@@ -1,5 +1,6 @@
 package com.egencia.hackathon.service;
 
+import com.egencia.hackathon.event.EventManager;
 import com.egencia.hackathon.model.Alert;
 import com.egencia.hackathon.model.DeviceRegistrationModel;
 import com.egencia.hackathon.model.Message;
@@ -17,13 +18,18 @@ public class DefaultDeviceService implements DeviceService {
     private DeviceRegistrationRepository deviceRegistrationRepository;
     private FCMService fcmService;
     private CallSendMessageImpl callSendMessage;
+    private EventManager eventManager;
+
 
     @Autowired
     public DefaultDeviceService(DeviceRegistrationRepository deviceRegistrationRepository,
                                 FCMService fcmService,
-                                @Qualifier("CallSendMessageImpl") CallSendMessageImpl callSendMessage) {
+                                @Qualifier("CallSendMessageImpl") CallSendMessageImpl callSendMessage,
+                                EventManager eventManager) {
         this.deviceRegistrationRepository = deviceRegistrationRepository;
         this.fcmService = fcmService;
+        this.callSendMessage = callSendMessage;
+        this.eventManager = eventManager;
     }
 
     @Override
@@ -32,6 +38,7 @@ public class DefaultDeviceService implements DeviceService {
 
         // Check is this device is already is registered with System or not?
         if (device == null) {
+            device = new DeviceRegistrationModel();
             // If YES that means its a REFRESH token request. So just update token
             device.setFcmToken(UUID.randomUUID().toString());
             deviceRegistrationRepository.save(device);
@@ -46,19 +53,15 @@ public class DefaultDeviceService implements DeviceService {
     }
 
     @Override
-    public void notifyDevice(final String phoneNumber, final Alert alert) {
+    public boolean notifyDevice(final String phoneNumber, final Alert alert) {
         final DeviceRegistrationModel device = getDevice(phoneNumber);
         if (device != null) {
             fcmService.notifyDeviceOverFCM(device, alert);
         }
-        try {
-            Thread.sleep(30000L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         Message message = new Message();
         message.setNumber(device.getNumber());
-        callSendMessage.send(message);
+        boolean status = callSendMessage.send(message);
+        return status;
     }
 
     @Override

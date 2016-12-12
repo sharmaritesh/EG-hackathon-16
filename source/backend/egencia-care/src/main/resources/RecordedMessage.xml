@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Gather timeout="10" finishOnKey="*">
+        <Say language="en">Some Emergency occurred in your current location. Please reply 1 if you are safe else 2.</Say>
+    </Gather>
+</Response>

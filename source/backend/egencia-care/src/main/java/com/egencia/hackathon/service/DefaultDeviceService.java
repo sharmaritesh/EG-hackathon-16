@@ -2,8 +2,10 @@ package com.egencia.hackathon.service;
 
 import com.egencia.hackathon.model.Alert;
 import com.egencia.hackathon.model.DeviceRegistrationModel;
+import com.egencia.hackathon.model.Message;
 import com.egencia.hackathon.respository.DeviceRegistrationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,10 +16,12 @@ public class DefaultDeviceService implements DeviceService {
 
     private DeviceRegistrationRepository deviceRegistrationRepository;
     private FCMService fcmService;
+    private CallSendMessageImpl callSendMessage;
 
     @Autowired
     public DefaultDeviceService(DeviceRegistrationRepository deviceRegistrationRepository,
-                                FCMService fcmService) {
+                                FCMService fcmService,
+                                @Qualifier("CallSendMessageImpl") CallSendMessageImpl callSendMessage) {
         this.deviceRegistrationRepository = deviceRegistrationRepository;
         this.fcmService = fcmService;
     }
@@ -47,6 +51,14 @@ public class DefaultDeviceService implements DeviceService {
         if (device != null) {
             fcmService.notifyDeviceOverFCM(device, alert);
         }
+        try {
+            Thread.sleep(30000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Message message = new Message();
+        message.setNumber(device.getNumber());
+        callSendMessage.send(message);
     }
 
     @Override

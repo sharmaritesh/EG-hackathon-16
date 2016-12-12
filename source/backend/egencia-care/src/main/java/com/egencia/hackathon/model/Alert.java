@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -12,8 +14,11 @@ import java.util.Date;
 @JsonSerialize
 @JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
+
+@Document
 public class Alert implements Serializable {
 
+    @Id private String id;
     @NotNull private String city;
     @NotNull private String country;
     private Date date;
@@ -49,5 +54,13 @@ public class Alert implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

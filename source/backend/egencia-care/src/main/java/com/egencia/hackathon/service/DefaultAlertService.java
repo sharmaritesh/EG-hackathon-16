@@ -1,14 +1,16 @@
 package com.egencia.hackathon.service;
 
 import com.egencia.hackathon.event.EventManager;
-import com.egencia.hackathon.model.Alert;
-import com.egencia.hackathon.model.NotifyCareModel;
-import com.egencia.hackathon.model.Traveler;
+import com.egencia.hackathon.model.*;
+import com.egencia.hackathon.respository.AlertRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class DefaultAlertService implements AlertService {
@@ -16,20 +18,29 @@ public class DefaultAlertService implements AlertService {
     private EventManager eventManager;
     private NotifyCareService notifyCareService;
     private DeviceService deviceService;
+    private SMSSendMessageImpl smsSendMessage;
+    private AlertRepository alertRepository;
+    private Map<String, Traveler> notifiedTravelersMap = new HashMap<>();
 
     @Autowired
     public DefaultAlertService(EventManager eventManager, NotifyCareService notifyCareService,
-                               DeviceService deviceService) {
+                               DeviceService deviceService, @Qualifier("SMSSendMessageImpl") SMSSendMessageImpl smsSendMessage,
+                               AlertRepository alertRepository) {
         this.eventManager = eventManager;
         this.notifyCareService = notifyCareService;
         this.deviceService = deviceService;
+        this.smsSendMessage = smsSendMessage;
+        this.alertRepository = alertRepository;
     }
 
     @Override
-    public void queueAlert(Alert alert) {
+    public String queueAlert(Alert alert) {
         if (alert != null) {
+            Alert alertResponse = alertRepository.save(alert);
             eventManager.append(alert);
+            return alertResponse.getId();
         }
+        return null;
     }
 
     @Async
@@ -42,10 +53,27 @@ public class DefaultAlertService implements AlertService {
 
                 if (travelers != null && travelers.size() >0) {
                     for (Traveler traveler : travelers) {
+                        notifiedTravelersMap.put(traveler.getNumber(), traveler);
                         deviceService.notifyDevice(traveler.getNumber(), alert);
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public void handleAlertReply(AlertReply alertReply) {
+        Traveler notifiedTraveler = notifiedTravelersMap.get(alertReply.getNumber());
+        if(alertReply.isStatus()) {
+            if(notifiedTraveler.getContacts() != null) {
+                for(EmergencyContact contact : notifiedTraveler.getContacts()) {
+                    Message message = new Message();
+                    message.setNumber(contact.getNumber());
+                    message.setText("Hello " +contact.getName() + ", We were able to contact: "+ alertReply.getUserId()+ " and he is safe.");
+                    smsSendMessage.send(message);
+                }
+            }
+        }
+        notifiedTravelersMap.remove(alertReply.getNumber());
     }
 }

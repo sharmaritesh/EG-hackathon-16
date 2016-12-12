@@ -1,7 +1,7 @@
 package com.egencia.hackathon.controller;
 
 import com.egencia.hackathon.model.Alert;
-import com.egencia.hackathon.model.NotifyCareModel;
+import com.egencia.hackathon.model.AlertReply;
 import com.egencia.hackathon.service.AlertService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 @RestController
@@ -37,5 +35,14 @@ public class AlertController {
         };
     }
 
+    @RequestMapping(value = "reply", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Callable<ResponseEntity<Void>> alertReply(
+            @Valid @RequestBody final AlertReply alertReply) {
+        return () -> {
+            alertService.handleAlertReply(alertReply);
+            return new ResponseEntity<Void>(HttpStatus.CREATED);
+        };
+    }
 
+    
 }

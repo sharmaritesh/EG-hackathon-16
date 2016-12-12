@@ -2,6 +2,7 @@ package com.egencia.hackathon.controller;
 
 import com.egencia.hackathon.model.Alert;
 import com.egencia.hackathon.model.AlertReply;
+import com.egencia.hackathon.service.AlertHandler;
 import com.egencia.hackathon.service.AlertService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,12 @@ import java.util.concurrent.Callable;
 public class AlertController {
 
     private AlertService alertService;
+    private AlertHandler alertHandler;
 
     @Autowired
-    public AlertController(AlertService alertService) {
+    public AlertController(AlertService alertService, AlertHandler alertHandler) {
         this.alertService = alertService;
+        this.alertHandler = alertHandler;
     }
 
     @RequestMapping(value = "alert", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -51,7 +54,7 @@ public class AlertController {
                 alertReply.setLongitute(Float.parseFloat(alertReplyParams.get("longitude")));
             alertReply.setStatus(Boolean.valueOf(alertReplyParams.get("status")));
             alertReply.setMessage(alertReplyParams.get("message"));
-            alertService.handleAlertReply(alertReply);
+            alertHandler.handleAlertReply(alertReply);
             return new ResponseEntity<Void>(HttpStatus.CREATED);
         };
     }

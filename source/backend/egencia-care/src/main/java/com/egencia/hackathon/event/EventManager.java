@@ -5,6 +5,7 @@ package com.egencia.hackathon.event;
  */
 
 import com.egencia.hackathon.model.Alert;
+import com.egencia.hackathon.service.AlertHandler;
 import com.egencia.hackathon.service.DefaultAlertService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class EventManager {
     private BlockingQueue<Alert> blockingQueue;
     private List<Worker> workers;
     @Autowired
-    private DefaultAlertService alertService;
+    private AlertHandler alertHandler;
     /**
      * The default buffer size.
      */
@@ -106,7 +107,7 @@ public class EventManager {
                     if(alertEvent == null) {
                         continue;
                     }
-                    String alertId = alertService.queueAlert(alertEvent);
+                    alertHandler.handleAlert(alertEvent);
                 } catch (InterruptedException ie) {
                     break;
                 }

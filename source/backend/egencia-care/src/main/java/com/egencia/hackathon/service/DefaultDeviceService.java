@@ -1,5 +1,6 @@
 package com.egencia.hackathon.service;
 
+import com.egencia.hackathon.model.Alert;
 import com.egencia.hackathon.model.DeviceRegistrationModel;
 import com.egencia.hackathon.respository.DeviceRegistrationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,5 +33,13 @@ public class DefaultDeviceService implements DeviceService {
     @Override
     public DeviceRegistrationModel getDevice(final String phoneNumber) {
         return deviceRegistrationRepository.findByNumber(phoneNumber);
+    }
+
+    @Override
+    public void notifyDevice(final String phoneNumber, final Alert alert) {
+        final DeviceRegistrationModel device = getDevice(phoneNumber);
+        if (device != null) {
+            //TODO : Notify Device with FCM
+        }
     }
 }

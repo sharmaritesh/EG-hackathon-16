@@ -30,6 +30,8 @@ public class NotifyCareModel implements Serializable {
     @Indexed private Date startDate;
     @Indexed private Date endDate;
 
+    private String tripId;
+
     private List<Traveler> travelers;
 
     public String getId() {
@@ -78,6 +80,14 @@ public class NotifyCareModel implements Serializable {
 
     public void setTravelers(List<Traveler> travelers) {
         this.travelers = travelers;
+    }
+
+    public String getTripId() {
+        return tripId;
+    }
+
+    public void setTripId(String tripId) {
+        this.tripId = tripId;
     }
 
     @Override

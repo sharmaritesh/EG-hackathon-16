@@ -29,19 +29,12 @@ public class EventManager {
     int queueSize = EventConstants.DEFAULT_QUEUE_SIZE;
 
     public EventManager() {
-
-    }
-
-    public EventManager(Environment environment) {
-        init(); // This is added when object is not created by spring
+        init();
     }
 
     @PostConstruct
     void init() {
         started = start();
-//        if(started) {
-//            this.configureDefaultHandlers();
-//        }
     }
 
     public void shutdown() {
@@ -92,9 +85,9 @@ public class EventManager {
         }
     }
 
-    protected void append(Alert msg) {
+    public void append(Alert alert) {
         try {
-            blockingQueue.put(msg);
+            blockingQueue.put(alert);
         } catch (InterruptedException e) {
             LOGGER.warn("Unable to put data for analytics errorReason={} ", e.getMessage());
         }
@@ -137,7 +130,7 @@ public class EventManager {
                     if(event == null) {
                         continue;
                     }
-                    Alert msgTuple = this.processHandlers(event);
+                    Alert alert = this.processHandlers(event);
                     //TODO //add implementation of notification.
 
                 } catch (InterruptedException ie) {

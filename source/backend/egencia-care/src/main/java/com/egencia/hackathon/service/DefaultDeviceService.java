@@ -6,28 +6,34 @@ import com.egencia.hackathon.respository.DeviceRegistrationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.UUID;
+
 @Service
 public class DefaultDeviceService implements DeviceService {
 
     private DeviceRegistrationRepository deviceRegistrationRepository;
+    private FCMService fcmService;
 
     @Autowired
-    public DefaultDeviceService(DeviceRegistrationRepository deviceRegistrationRepository) {
+    public DefaultDeviceService(DeviceRegistrationRepository deviceRegistrationRepository,
+                                FCMService fcmService) {
         this.deviceRegistrationRepository = deviceRegistrationRepository;
+        this.fcmService = fcmService;
     }
 
     @Override
-    public void registerDevice(DeviceRegistrationModel registrationModel) {
-        DeviceRegistrationModel device = getDevice(registrationModel.getNumber());
+    public String registerDevice(final String phoneNumber) {
+        DeviceRegistrationModel device = getDevice(phoneNumber);
 
         // Check is this device is already is registered with System or not?
-        if (device != null) {
+        if (device == null) {
             // If YES that means its a REFRESH token request. So just update token
-            device.setFcmToken(registrationModel.getFcmToken());
-        } else {
-            device = registrationModel;
+            device.setFcmToken(UUID.randomUUID().toString());
+            deviceRegistrationRepository.save(device);
         }
-        deviceRegistrationRepository.save(device);
+
+        return device.getFcmToken();
     }
 
     @Override
@@ -39,7 +45,12 @@ public class DefaultDeviceService implements DeviceService {
     public void notifyDevice(final String phoneNumber, final Alert alert) {
         final DeviceRegistrationModel device = getDevice(phoneNumber);
         if (device != null) {
-            //TODO : Notify Device with FCM
+            fcmService.notifyDeviceOverFCM(device, alert);
         }
+    }
+
+    @Override
+    public List<Alert> getAlerts(String phoneNumber) {
+        return fcmService.getPendingAlerts(phoneNumber);
     }
 }

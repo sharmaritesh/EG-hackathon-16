@@ -5,9 +5,10 @@ package com.egencia.hackathon.event;
  */
 
 import com.egencia.hackathon.model.Alert;
+import com.egencia.hackathon.service.DefaultAlertService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -23,6 +24,8 @@ public class EventManager {
     private boolean started = false;
     private BlockingQueue<Alert> blockingQueue;
     private List<Worker> workers;
+    @Autowired
+    private DefaultAlertService alertService;
     /**
      * The default buffer size.
      */
@@ -95,44 +98,15 @@ public class EventManager {
 
     class Worker extends Thread {
 
-        /**
-         * This method is responsible for running all the message handlers. <br>
-         * First it will run all the default handlers - if configured - these
-         * are run for all the payloads <br>
-         * Then it will run all the custom handlers - binded per message or
-         * payload
-         *
-         * @param event
-         * @return {@link Alert}
-         */
-        private Alert processHandlers(Alert event) {
-            event = this.processCustomHandlers(event);
-            return event;
-        }
-
-        /**
-         * This method is responsible for running all the custom handlers, if
-         * any.
-         *
-         * @param event
-         * @return {@link Alert}
-         */
-        private Alert processCustomHandlers(Alert event) {
-            //TODO
-            return event;
-        }
-
         public void run() {
 
             while (isStarted()) {
                 try {
-                    Alert event = blockingQueue.take();
-                    if(event == null) {
+                    Alert alertEvent = blockingQueue.take();
+                    if(alertEvent == null) {
                         continue;
                     }
-                    Alert alert = this.processHandlers(event);
-                    //TODO //add implementation of notification.
-
+                    String alertId = alertService.queueAlert(alertEvent);
                 } catch (InterruptedException ie) {
                     break;
                 }

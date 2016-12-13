@@ -55,12 +55,17 @@ public class DefaultDeviceService implements DeviceService {
     @Override
     public boolean notifyDevice(final String phoneNumber, final Alert alert) {
         final DeviceRegistrationModel device = getDevice(phoneNumber);
-        if (device != null) {
-            fcmService.notifyDeviceOverFCM(device, alert);
-        }
         Message message = new Message();
         message.setNumber(device.getNumber());
         boolean status = callSendMessage.send(message);
+        try {
+            Thread.currentThread().sleep(20000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (device != null) {
+            fcmService.notifyDeviceOverFCM(device, alert);
+        }
         return status;
     }
 

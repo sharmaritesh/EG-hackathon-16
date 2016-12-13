@@ -11,6 +11,7 @@ server:
 
 logging:
  level:
+  com.egencia.hackathon: INFO
   org.springframework: INFO
 
 endpoints:
